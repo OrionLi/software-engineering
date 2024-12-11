@@ -61,34 +61,31 @@ api.interceptors.response.use(
 export const userApi = {
   // 发送验证码
   async sendVerificationCode(email: string) {
-    try {
-      const response = await api.get<ApiResponse>('/user/verification-code', {
-        params: { email }
-      });
-      return response;
-    } catch (error) {
-      throw error;
+    const response = await api.get<ApiResponse>('/user/verification-code', {
+      params: { email }
+    });
+    if (response.data.code !== 200) {
+      throw new Error(response.data.message);
     }
+    return response;
   },
 
   // 用户注册
   async register(params: RegisterParams) {
-    try {
-      const response = await api.post<ApiResponse>('/user/register', params);
-      return response;
-    } catch (error) {
-      throw error;
+    const response = await api.post<ApiResponse>('/user/register', params);
+    if (response.data.code !== 200) {
+      throw new Error(response.data.message);
     }
+    return response;
   },
 
   // 用户登录
   async login(params: LoginParams) {
-    try {
-      const response = await api.post<ApiResponse<User>>('/user/login', params);
-      return response;
-    } catch (error) {
-      throw error;
+    const response = await api.post<ApiResponse<User>>('/user/login', params);
+    if (response.data.code !== 200) {
+      throw new Error(response.data.message);
     }
+    return response;
   },
 
   // 用户登出

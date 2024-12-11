@@ -182,7 +182,14 @@ const handleSendCode = async () => {
 
   try {
     sending.value = true;
-    await userApi.sendVerificationCode(form.email);
+    const response = await userApi.sendVerificationCode(form.email);
+    
+    // 检查响应状态
+    if (response.data.code !== 200) {
+      ElMessage.error(response.data.message);
+      return;
+    }
+    
     ElMessage.success('验证码已发送，请注意查收');
     countdown.value = 5;
     
@@ -202,13 +209,13 @@ const handleSendCode = async () => {
     }, 1000);
 
   } catch (error: any) {
-    console.error('Send Code Error:', error);
-    ElMessage.error(
-      error.response?.data?.message || 
-      error.response?.data?.error || 
-      error.message || 
-      '发送失败，请检查邮箱是否正确'
-    );
+    // 如果是邮箱已被注册（错误码1004），则提示用户并跳转到登录页
+    if (error.response?.data?.code === 1004) {
+      ElMessage.info('该邮箱已注册，正在跳转到登录页面...');
+      router.push('/login');
+    } else {
+      ElMessage.error(error.response?.data?.message || error.message);
+    }
   } finally {
     sending.value = false;
   }
@@ -229,11 +236,24 @@ const handleSubmit = async () => {
   try {
     await formRef.value.validate();
     loading.value = true;
-    await userApi.register(form);
+    const response = await userApi.register(form);
+    
+    // 检查响应状态
+    if (response.data.code !== 200) {
+      ElMessage.error(response.data.message);
+      return;
+    }
+    
     ElMessage.success('注册成功');
     router.push('/login');
   } catch (error: any) {
-    ElMessage.error(error.response?.data?.message || '注册失败');
+    // 如果是用户已存在的错误（错误码1001），则跳转到登录页
+    if (error.response?.data?.code === 1001) {
+      ElMessage.info('该用户已注册，正在跳转到登录页面...');
+      router.push('/login');
+    } else {
+      ElMessage.error(error.response?.data?.message || error.message);
+    }
   } finally {
     loading.value = false;
   }

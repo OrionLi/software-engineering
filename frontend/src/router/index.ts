@@ -1,10 +1,5 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 
-// 预加载组件
-const Home = () => import(/* webpackChunkName: "home" */ '@/views/Home.vue');
-const Login = () => import(/* webpackChunkName: "auth" */ '@/views/Login.vue');
-const Register = () => import(/* webpackChunkName: "auth" */ '@/views/Register.vue');
-
 // 定义路由元信息类型
 declare module 'vue-router' {
   interface RouteMeta {
@@ -18,7 +13,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/',
     name: 'Home',
-    component: Home,
+    component: () => import('@/views/Home.vue'),
     meta: { 
       requiresAuth: true,
       title: '首页'
@@ -27,7 +22,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/login',
     name: 'Login',
-    component: Login,
+    component: () => import('@/views/Login.vue'),
     meta: { 
       requiresGuest: true,
       title: '登录'
@@ -36,7 +31,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/register',
     name: 'Register',
-    component: Register,
+    component: () => import('@/views/Register.vue'),
     meta: { 
       requiresGuest: true,
       title: '注册'

@@ -89,6 +89,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void sendVerificationCode(String email) {
+        // 先检查邮箱是否已被注册
         if (userRepository.existsByEmail(email)) {
             throw new BusinessException(ResultCode.EMAIL_EXISTED);
         }
