@@ -1,0 +1,64 @@
+############################## server environment start #####################
+spring:
+  application:
+    name: software-engineering
+  profiles:
+    active: dev
+    ############################# server environment end ####################
+    ############################## MySQL start ##############################
+  datasource:
+    url: jdbc:mysql://${mysql.ip}:${mysql.port}/${mysql.database}
+    username: ${mysql.username}
+    password: ${mysql.password}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    type: com.zaxxer.hikari.HikariDataSource
+    hikari:
+      minimum-idle: 10
+      maximum-pool-size: 80
+  mail:
+    # 指定邮件服务器地址
+    host: ${mail.host}
+    # 登录账户
+    username: ${mail.username}
+    # 登录密码
+    password: ${mail.password}
+    # 端口
+    port: ${mail.port}
+    # 默认编码
+    default-encoding: UTF-8
+    # 使用的协议
+    protocol: smtp
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.starttls.enable: true
+      mail.smtp.starttls.required: true
+      mail.smtp.socketFactory.port: 465
+      mail.smtp.socketFactory.class: javax.net.ssl.SSLSocketFactory
+      mail.smtp.socketFactory.fallback: false
+      # 添加这一行，确保发件人地址与认证用户相同
+      mail.smtp.from: ${mail.username}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  data:
+    redis:
+      host: ${redis.host}
+      port: ${redis.port}
+      password: ${redis.password}
+      # Redis默认配置
+      database: 0
+      timeout: 10000
+  cache:
+    type: redis
+    redis:
+      # 缓存过期时间（毫秒）
+      time-to-live: 10000
+      # 是否缓存空值
+      cache-null-values: true
+      # 使用前缀
+      use-key-prefix: true
+      # 前缀
+      key-prefix: "software-engineering:"
+      # 是否启用Redis的键事件通知
+      enable-statistics: false
