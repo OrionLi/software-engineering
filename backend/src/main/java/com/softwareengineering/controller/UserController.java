@@ -5,6 +5,7 @@ import com.softwareengineering.entity.User;
 import com.softwareengineering.service.UserService;
 import com.softwareengineering.vo.UserLoginVO;
 import com.softwareengineering.vo.UserRegisterVO;
+import com.softwareengineering.vo.ResetPasswordVO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -45,6 +46,16 @@ public class UserController {
     @PostMapping("/logout")
     public Result<Void> logout(@RequestHeader("X-Session-Id") String sessionId) {
         userService.logout(sessionId);
+        return Result.success();
+    }
+
+    @PostMapping("/reset-password")
+    public Result<Void> resetPassword(@RequestBody @Valid ResetPasswordVO resetPasswordVO) {
+        userService.resetPassword(
+            resetPasswordVO.getEmail(),
+            resetPasswordVO.getVerificationCode(),
+            resetPasswordVO.getNewPassword()
+        );
         return Result.success();
     }
 

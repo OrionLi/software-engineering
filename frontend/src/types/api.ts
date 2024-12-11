@@ -29,4 +29,10 @@ export interface RegisterParams {
 export interface LoginParams {
   username: string;
   password: string;
+}
+
+export interface ResetPasswordParams {
+  email: string;
+  verificationCode: string;
+  newPassword: string;
 } 

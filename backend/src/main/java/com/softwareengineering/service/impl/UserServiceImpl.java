@@ -13,6 +13,7 @@ import com.softwareengineering.vo.UserRegisterVO;
 import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.mail.SimpleMailMessage;
@@ -89,19 +90,14 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void sendVerificationCode(String email) {
-        // 先检查邮箱是否已被注册
-        if (userRepository.existsByEmail(email)) {
-            throw new BusinessException(ResultCode.EMAIL_EXISTED);
-        }
-
         // 生成6位随机验证码
         String code = String.format("%06d", new Random().nextInt(1000000));
 
         // 发送邮件
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(email);
-        message.setSubject("注册验证码");
-        message.setText("您的注册验证码是：" + code + "，有效期5分钟。");
+        message.setSubject("验证码");
+        message.setText("您的验证码是：" + code + "，有效期5分钟。");
         mailSender.send(message);
 
         // 保存到Redis
@@ -121,6 +117,46 @@ public class UserServiceImpl implements UserService {
             throw new BusinessException(ResultCode.UNAUTHORIZED);
         }
         redisTemplate.delete(key);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void resetPassword(String email, String verificationCode, String newPassword) {
+        // 验证验证码
+        String codeKey = VERIFICATION_CODE_PREFIX + email;
+        String savedCode = redisTemplate.opsForValue().get(codeKey);
+        if (savedCode == null || !savedCode.equals(verificationCode)) {
+            throw new BusinessException(ResultCode.VERIFICATION_CODE_ERROR);
+        }
+
+        // 查找用户
+        User user = userRepository.findByEmail(email);
+        if (user == null) {
+            throw new BusinessException(ResultCode.USER_NOT_FOUND);
+        }
+
+        try {
+            // 直接使用新密码加密并保存，不要使用 encryptAndFormat
+            user.setPassword(HexUtil.encryptAndFormat(newPassword));
+            userRepository.saveAndFlush(user);  // 使用 saveAndFlush 确保立即写入数据库
+            
+            // 删除验证码
+            redisTemplate.delete(codeKey);
+            
+            // 删除该用户的所有会话
+            String sessionPattern = CommonConstants.Redis.SESSION_PREFIX + "*";
+            Set<String> keys = redisTemplate.keys(sessionPattern);
+            if (keys != null) {
+                for (String key : keys) {
+                    String userId = redisTemplate.opsForValue().get(key);
+                    if (userId != null && userId.equals(user.getId().toString())) {
+                        redisTemplate.delete(key);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            throw new BusinessException(ResultCode.SYSTEM_ERROR, "密码重置失败：" + e.getMessage());
+        }
     }
 
 }

@@ -1,7 +1,7 @@
 import axios, { AxiosError } from 'axios';
 import { ElMessage } from 'element-plus';
 import router from '@/router';
-import type { ApiResponse, User, RegisterParams, LoginParams } from '@/types/api';
+import type { ApiResponse, User, RegisterParams, LoginParams, ResetPasswordParams } from '@/types/api';
 
 const api = axios.create({
   baseURL: '/api',
@@ -95,6 +95,22 @@ export const userApi = {
       return response;
     } catch (error) {
       throw error;
+    }
+  },
+
+  // 重置密码
+  async resetPassword(params: ResetPasswordParams) {
+    try {
+        const response = await api.post<ApiResponse>('/user/reset-password', params);
+        if (response.data.code !== 200) {
+            throw new Error(response.data.message);
+        }
+        return response;
+    } catch (error: any) {
+        if (error.response?.data?.message) {
+            throw new Error(error.response.data.message);
+        }
+        throw error;
     }
   }
 }; 

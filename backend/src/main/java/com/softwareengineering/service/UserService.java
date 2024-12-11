@@ -14,4 +14,6 @@ public interface UserService {
 
     void logout(String sessionId);
 
+    void resetPassword(String email, String verificationCode, String newPassword);
+
 }

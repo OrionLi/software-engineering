@@ -38,6 +38,15 @@ const routes: RouteRecordRaw[] = [
     }
   },
   {
+    path: '/reset-password',
+    name: 'ResetPassword',
+    component: () => import('@/views/ResetPassword.vue'),
+    meta: { 
+      requiresGuest: true,
+      title: '重置密码'
+    }
+  },
+  {
     path: '/:pathMatch(.*)*',
     name: 'NotFound',
     redirect: '/'

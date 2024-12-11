@@ -57,6 +57,9 @@
               去注册
             </el-button>
           </div>
+          <div class="forgot-password">
+            <el-link type="primary" @click="router.push('/reset-password')">忘记密码？</el-link>
+          </div>
         </el-form-item>
       </el-form>
     </el-card>
@@ -173,5 +176,10 @@ h2 {
 .register-btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 20px rgba(144, 147, 153, 0.2);
+}
+
+.forgot-password {
+  text-align: center;
+  margin-top: 16px;
 }
 </style> 
